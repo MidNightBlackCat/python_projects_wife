@@ -1,9 +1,8 @@
 from pymongo import MongoClient
-# from googletrans import Translator
 import emojis
 import time
-# from google.cloud import translate_v2 as translate
-# translate_client=translate.Client()
+from google.cloud import translate_v2 as translate
+translate_client=translate.Client()
 
 
 newclient = MongoClient("mongodb://localhost:27017")
@@ -20,7 +19,6 @@ def translate_comment(col):
     print('已获取所有评论，准备开始翻译')
     for i in comment_array:
         ch_comment = emojis.decode(i['comment_text'])
-        # trans = transtor.translate(ch_comment, src='zh-cn',dest='en')
         result=translate_client.translate(ch_comment,target_language='en')
         collection.update_one(querry, {'$set': {'Comment_English': result['translatedText']}})
 def modify_date(coldb):
@@ -30,12 +28,10 @@ def modify_date(coldb):
             n_date=time.localtime(creat_time)
             for_date=time.strftime("%Y-%m-%d",n_date)
             coldb.update_one({'creat_time':creat_time},{'$set':{'creat_time':for_date}})
-# i = 1
-# for col in collectionarray:
-#     translate_comment(col)
-#     print('已经完成%d个库评论数据翻译' % i)
-#     i += 1
+i = 1
+for col in collectionarray:
+    translate_comment(col)
+    print('已经完成%d个库评论数据翻译' % i)
+    i += 1
 
-coldb=mydb['comments_15']
-modify_date(coldb)
 
